@@ -1,0 +1,27 @@
+
+1) WITH department_ranking AS (
+SELECT
+  e.Name AS Employee
+  ,e.Salary
+  ,e.DepartmentId
+  ,DENSE_RANK() OVER (PARTITION BY e.DepartmentId ORDER BY e.Salary DESC) AS rnk
+FROM Employee AS e
+)
+SELECT
+  d.Name AS Department
+  ,r.Employee
+  ,r.Salary
+FROM department_ranking AS r
+JOIN Department AS d
+  ON r.DepartmentId = d.Id
+  AND r.rnk <= 3
+ORDER BY d.Name ASC, r.Salary DESC;
+
+
+2) SELECT Request_at AS Day,
+ROUND(SUM(IF(Status != "completed",1,0))/COUNT(Status), 2) AS "Cancellation Rate"
+FROM Trips
+WHERE Request_at >= "2013-10-01" AND Request_at <= "2013-10-03"
+AND Client_Id NOT IN (SELECT Users_Id FROM Users WHERE Banned = "Yes")
+AND Driver_Id NOT IN (SELECT Users_Id FROM Users WHERE Banned = "Yes")
+GROUP BY Request_at
